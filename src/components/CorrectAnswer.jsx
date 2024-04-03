@@ -1,22 +1,11 @@
-import React, { useState, useEffect } from "react";
-import "./Correctans.css";
+import React, { useState } from "react";
 
-const CorrectAnswer = ({ correctQuestions, totalQuestions }) => {
-  const [correct, setCorrect] = useState(0);
-  const [total, setTotal] = useState(0);
-
-  useEffect(() => {
-    setCorrect(correctQuestions);
-  }, [correctQuestions]);
-
-  useEffect(() => {
-    setTotal(totalQuestions);
-  }, [totalQuestions]);
+const CorrectAnswer = ({ correctQuestions=0, totalQuestions=0 }) => {
 
   return (
     <>
       <div className="correct-answers">
-        Correct Answers: {correct} / {total}
+        Correct Answers: {`${correctQuestions}`} / {`${totalQuestions}`}
       </div>
     </>
   );
