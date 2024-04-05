@@ -7,10 +7,15 @@ import {
   MenuItem,
   Paper,
   Select,
+  Modal,
+  Typography,
+
 } from "@mui/material";
 import React, { useEffect, useState } from "react";
 import NumberInput from "../components/NumberInput";
 import CorrectAnswer from "../components/CorrectAnswer";
+import "./QuizHome.css"
+import AnswerComponent from "../components/AnswerComponent";
 
 function QuizHome() {
   const [formData, setFormData] = useState({});
@@ -20,6 +25,9 @@ function QuizHome() {
   const [activeIndex, setActiveIndex] = useState(0);
   const [activeQuestion, setActiveQuestion] = useState();
   const [showResult, setShowResult] = useState(false);
+  const [resultDialog, setResultDialog] = useState(false);
+  const [correct, setCorrect] = useState(0);
+  const resultClose = () => setResultDialog(false);
 
   useEffect(() => {
     if (questions.length) {
@@ -55,6 +63,7 @@ function QuizHome() {
         return results.json();
       })
       .then((response) => {
+        console.log(response);
         setLoading(false);
         if (response?.results) {
           setQuestions(response.results);
@@ -67,6 +76,19 @@ function QuizHome() {
 
   const onNextQuestion = () => {
     setActiveIndex(activeIndex + 1);
+  };
+  
+
+  const style = {
+    position: 'absolute',
+    top: '50%',
+    left: '50%',
+    transform: 'translate(-50%, -50%)',
+    width: 400,
+    bgcolor: 'background.paper',
+    border: '2px solid #000',
+    boxShadow: 24,
+    p: 4,
   };
 
   //Initial View : Form
@@ -124,26 +146,49 @@ function QuizHome() {
       {isStarted && (
         <Paper elevation={3} className="mainContent">
           <div className="section1">
-            <CorrectAnswer totalQuestions={questions.length} />
+            <CorrectAnswer correctQuestions={correct} totalQuestions={questions.length} />
           </div>
           <div className="section2">
             {loading ? (
               <CircularProgress />
             ) : (
-              <h4>{activeQuestion?.question}</h4>
+              <h1>{activeQuestion?.question}</h1>
             )}
           </div>
           <div className="section3">
+            {
+              activeQuestion?.incorrect_answers.map((item) => <AnswerComponent answer={item}/>)
+            }
+            <AnswerComponent answer={activeQuestion?.correct_answer} clicked={() => setCorrect(correct+1)}/>
+          </div>
+          <div className="section4">
             {!showResult ? (
               <Button variant="contained" onClick={onNextQuestion}>
                 Next Question
               </Button>
             ) : (
-              <div>Result</div>
+              <Button variant="contained" onClick={() => setResultDialog(true)}>
+                Check Result
+              </Button>
             )}
           </div>
         </Paper>
       )}
+      <Modal
+      open={resultDialog}
+      onClose={resultClose}
+      aria-labelledby="modal-modal-title"
+      aria-describedby="modal-modal-description"
+      >
+        <Box sx={style}>
+          <Typography id="modal-modal-title" variant="h6" component="h2">
+            Result is:
+          </Typography>
+          <Typography id="modal-modal-description" sx={{ mt: 2 }}>
+            `{correct} / {questions.length}`
+          </Typography>
+        </Box>
+      </Modal>
     </>
   );
 }
